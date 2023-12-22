@@ -1,0 +1,1 @@
+"0","new_coaches_data <- left_join(new_coaches_record, new_coaches_rank, by = 'team')"

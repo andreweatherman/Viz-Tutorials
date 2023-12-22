@@ -1,0 +1,19 @@
+---
+title: "Index of Viz. Tutorials"
+author: "Andrew Weatherman"
+date: "2023-12-22"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+<h1 style="font-weight:normal" align="center">
+  &nbsp;#TidyTuesday Contributions&nbsp;
+</h1>
+
+This repository is a growing collection of college basketball visualizations and their source code.
+
+### Coach Performance Relative to Expectations
+![coach_performance](over_under_coach_performance/over_perform.jpg)

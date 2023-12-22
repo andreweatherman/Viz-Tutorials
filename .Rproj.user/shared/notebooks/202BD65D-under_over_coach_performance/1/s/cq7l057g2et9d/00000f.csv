@@ -1,0 +1,6 @@
+"0","withr::local_options(HTTPUserAgent='andrew') # if you are on windows, you will need to change the user-agent"
+"0",""
+"0","new_coaches <- read_html('https://barttorvik.com/coaching_moves.php?year=2024') |> "
+"0","  html_table() |> "
+"0","  pluck(1) |> "
+"0","  janitor::clean_names()"

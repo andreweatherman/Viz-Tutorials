@@ -1,0 +1,5 @@
+"0","new_coaches_data <- left_join(new_coaches_data, expected_wins, by = 'team') |> "
+"0","  mutate(difference = wins - xW)"
+"0",""
+"0","new_coaches <- left_join(new_coaches |> select(team, new_coach), new_coaches_data,"
+"0","                         by = 'team')"
