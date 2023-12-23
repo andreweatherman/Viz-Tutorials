@@ -14,5 +14,5 @@
 
 This repository is a growing collection of college basketball visualizations and their source code.
 
-### [Coach Performance Relative to Expectations](https://github.com/andreweatherman/Viz-Tutorials/tree/main/over_under_coach_performance/over_under_coach_performance.Rmd)
+### [Coach Performance Relative to Expectations](https://github.com/andreweatherman/Viz-Tutorials/tree/main/over_under_coach_performance/over_under_coach_performance.md)
 ![./over_under_coach_performance/over_perform](https://github.com/andreweatherman/Viz-Tutorials/blob/main/over_under_coach_performance/over_perform.png?raw=true)

@@ -1,16 +1,9 @@
----
-title: "Coach Performance Relative to Expectations"
-author: "Andrew Weatherman"
-date: "2023-12-22"
-output: rmarkdown::github_document
----
+Coach Performance Relative to Expectations
+================
+Andrew Weatherman
+2023-12-22
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, eval = FALSE)
-```
-
-
-```{r}
+``` r
 library(tidyverse)
 library(cbbdata)
 library(rvest)
@@ -21,11 +14,14 @@ library(here)
 library(magick)
 ```
 
-This is a quick code walk-through of how to create tables that visualize which new coaches have over- and under-performed the most relative to preseason expectations. It uses `cbbdata` and `rvest`, and `gt`.
+This is a quick code walk-through of how to create tables that visualize
+which new coaches have over- and under-performed the most relative to
+preseason expectations. It uses `cbbdata` and `rvest`, and `gt`.
 
-Barttorvik has a list of new coaches in 2024, so let's grab those with `rvest`:
+Barttorvik has a list of new coaches in 2024, so let’s grab those with
+`rvest`:
 
-```{r}
+``` r
 withr::local_options(HTTPUserAgent='andrew') # if you are on windows, you will need to change the user-agent
 
 new_coaches <- read_html('https://barttorvik.com/coaching_moves.php?year=2024') |> 
@@ -34,39 +30,59 @@ new_coaches <- read_html('https://barttorvik.com/coaching_moves.php?year=2024') 
   janitor::clean_names()
 ```
 
-This code uses my `cbbdata` package. If you have not yet installed it or created an account, [follow this link](https://cbbdata.aweatherman.com/#installation) for information on how to do so. You must have an active account, and be logged in, to use these functions.
+This code uses my `cbbdata` package. If you have not yet installed it or
+created an account, [follow this
+link](https://cbbdata.aweatherman.com/#installation) for information on
+how to do so. You must have an active account, and be logged in, to use
+these functions.
 
-Now that we have a list of new coaches, let's get their current team record. We will probably only plot wins vs. expected wins, so we will not need the other columns.
+Now that we have a list of new coaches, let’s get their current team
+record. We will probably only plot wins vs. expected wins, so we will
+not need the other columns.
 
-```{r}
+``` r
 new_coaches_record <- cbd_torvik_team_factors(year = 2024) |> 
   filter(team %in% new_coaches$team) |>  # filter to just include teams with new coaches
   select(team, games, wins)
 ```
 
-For some strange reason, that endpoint does not include a team's actual *rank*, so let's grab that as well.
+For some strange reason, that endpoint does not include a team’s actual
+*rank*, so let’s grab that as well.
 
-```{r}
+``` r
 new_coaches_rank <- cbd_torvik_ratings(year = 2024) |> 
   filter(team %in% new_coaches$team) |> 
   select(team, barthag_rk)
 ```
 
-Let's join these two tables using `left_join`.
+Let’s join these two tables using `left_join`.
 
-```{r}
+``` r
 new_coaches_data <- left_join(new_coaches_record, new_coaches_rank, by = 'team')
 ```
 
-Now, let's grab the expected wins for each team using `cbd_torvik_season_prediction`. This function uses T-Rank ratings on a specified day to predict the win probability of each game for a given team. To then calculate the expected wins, we need to sum the win percentage column and then divide by 100 because our win percentage is on a [0,100] scale.
+Now, let’s grab the expected wins for each team using
+`cbd_torvik_season_prediction`. This function uses T-Rank ratings on a
+specified day to predict the win probability of each game for a given
+team. To then calculate the expected wins, we need to sum the win
+percentage column and then divide by 100 because our win percentage is
+on a \[0,100\] scale.
 
-Importantly, we will be filtering for all games played *before* today (December 22).
+Importantly, we will be filtering for all games played *before* today
+(December 22).
 
-For the date parameter, we will pass through November 5, 2023 -- which represents the *preseason* T-Rank ratings (one day before the season started).
+For the date parameter, we will pass through November 5, 2023 – which
+represents the *preseason* T-Rank ratings (one day before the season
+started).
 
-We will use `purrr` to *loop through* each team with a new coach. Specifically, we are using `map_dfr` to then *bind* those resulting tibbles together to create one aggregated frame. I like to throw in a progress bar when I am looping by setting `.progress` to anything (it's just the label that shows in the console; it doesn't matter what you put).
+We will use `purrr` to *loop through* each team with a new coach.
+Specifically, we are using `map_dfr` to then *bind* those resulting
+tibbles together to create one aggregated frame. I like to throw in a
+progress bar when I am looping by setting `.progress` to anything (it’s
+just the label that shows in the console; it doesn’t matter what you
+put).
 
-```{r}
+``` r
 get_expected_wins <- function(team) {
   
   cbd_torvik_season_prediction(team, year = 2024, date = '2023-11-05') |> 
@@ -78,9 +94,11 @@ get_expected_wins <- function(team) {
 expected_wins <- map_dfr(new_coaches$team, \(team) get_expected_wins(team), .progress = 'Looping')
 ```
 
-Let's join the expected wins data with our `new_coaches` tibble and calculate the difference in actual wins and expected ones. We will also join on the coach's name.
+Let’s join the expected wins data with our `new_coaches` tibble and
+calculate the difference in actual wins and expected ones. We will also
+join on the coach’s name.
 
-```{r}
+``` r
 new_coaches_data <- left_join(new_coaches_data, expected_wins, by = 'team') |> 
   mutate(difference = wins - xW)
 
@@ -88,9 +106,16 @@ new_coaches <- left_join(new_coaches |> select(team, new_coach), new_coaches_dat
                          by = 'team')
 ```
 
-And that's it! We have all of the data that we need. Let's plot the over- and under-performers using `gt`. We will use the `cbd_gt_logos` function to add team logos. Because our tables will be fairly similar in terms of style and design, we will write a function that creates our `gt` table and tweaks the differences. This avoids us having to copy + paste the same table and makes our code file a bit shorter. And if we wanted to change any small detail in our table, we only have to alter the function itself, not two table codes!
+And that’s it! We have all of the data that we need. Let’s plot the
+over- and under-performers using `gt`. We will use the `cbd_gt_logos`
+function to add team logos. Because our tables will be fairly similar in
+terms of style and design, we will write a function that creates our
+`gt` table and tweaks the differences. This avoids us having to copy +
+paste the same table and makes our code file a bit shorter. And if we
+wanted to change any small detail in our table, we only have to alter
+the function itself, not two table codes!
 
-```{r}
+``` r
 create_gt_table <- function(data, plot_type, title, subtitle) {
   
   palette <- ifelse(plot_type == 'over', 'ggsci::green_material', 'ggsci::red_material')
@@ -139,9 +164,13 @@ create_gt_table <- function(data, plot_type, title, subtitle) {
 }
 ```
 
-Let's create the tables! For the over-performers, we will be using the `slice_max` function to pull, and sort, the ten coaches with the greatest win difference from expected. For the under-performers, we will be using `slice_min`. We will use `gtsave_extra` from the `gtExtras` package to save pictures of our tables.
+Let’s create the tables! For the over-performers, we will be using the
+`slice_max` function to pull, and sort, the ten coaches with the
+greatest win difference from expected. For the under-performers, we will
+be using `slice_min`. We will use `gtsave_extra` from the `gtExtras`
+package to save pictures of our tables.
 
-```{r}
+``` r
 # over-performers
 create_gt_table(
   new_coaches |> slice_max(difference, n = 10),
@@ -159,11 +188,16 @@ create_gt_table(
 ) |> gtsave_extra(here('over_under_coach_performance', 'under_perform.png'), zoom = 3)
 ```
 
-Unfortunately, `gtsave_extra` leaves a lot of white space around the tables that it saves. For quick-and-dirty uses, you can manually crop a table -- but this is tedious if you have multiple tables and loses consistency. Luckily, we can use the `magick` package to crop our tables with a set amount of white space.
+Unfortunately, `gtsave_extra` leaves a lot of white space around the
+tables that it saves. For quick-and-dirty uses, you can manually crop a
+table – but this is tedious if you have multiple tables and loses
+consistency. Luckily, we can use the `magick` package to crop our tables
+with a set amount of white space.
 
-We will use `walk` from the `purrr` package to apply this function to both of our tables (i.e. file names).
+We will use `walk` from the `purrr` package to apply this function to
+both of our tables (i.e. file names).
 
-```{r}
+``` r
 crop_gt <- function(file, whitespace) {
   image_read(file) |> 
     image_trim() |> 
@@ -172,6 +206,4 @@ crop_gt <- function(file, whitespace) {
 }
 
 walk(c(here('over_under_coach_performance', 'over_perform.png'), here('over_under_coach_performance', 'under_perform.png')), \(file) crop_gt(file, '40'))
-
 ```
-
