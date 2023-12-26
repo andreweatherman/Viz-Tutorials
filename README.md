@@ -16,3 +16,6 @@ This repository is a growing collection of college basketball visualizations and
 
 ### [Coach Performance Relative to Expectations](https://github.com/andreweatherman/Viz-Tutorials/tree/main/over_under_coach_performance/over_under_coach_performance.md)
 ![./over_under_coach_performance/over_perform](https://github.com/andreweatherman/Viz-Tutorials/blob/main/over_under_coach_performance/over_perform.png?raw=true)
+
+### [AP Ballot Tracker](https://github.com/andreweatherman/Viz-Tutorials/tree/main/ap_pollster_grid/ap_pollster_grid.md)
+![./ap_pollster_grid/ap_pollster_grid](https://github.com/andreweatherman/Viz-Tutorials/blob/main/oap_pollster_grid/ap_pollster_grid.png?raw=true)
