@@ -176,7 +176,7 @@ plot_ap_table <- function(data) {
                 heading.subtitle.font.size = 17,
                 footnotes.font.size = 14,
                 source_notes.font.size = 12) %>% 
-    tab_footnote(locations = cells_column_labels(columns = sd), footnote = md("'SD' indicates the standard deviation of a voter's rankings from the AP POLL. Higher SD values mean greater divergence from<br>the AP poll, while lower values suggest closer alignment.")) %>% 
+    tab_footnote(locations = cells_column_labels(columns = sd), footnote = md("'SD' indicates the standard deviation of a voter's rankings from the AP poll Higher SD values mean greater divergence from<br>the AP poll, while lower values suggest closer alignment.")) %>% 
     tab_header(
       title = '2023-24 College Basketball AP Poll Ballot Tracker: Week 9 (Dec. 25)',
       subtitle = md('Tracking media ballots for the college basketball Associated Press (AP) poll during the week of December 18 - December 25, 2023.<br>Pollsters are sorted by standard deviation relative to aggregate poll.')
