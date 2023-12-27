@@ -1,5 +1,6 @@
 AP Weekly Grid
 ================
+Andrew Weatherman
 2023-12-26
 
 ``` r
@@ -245,9 +246,9 @@ entire table).
 
 ``` r
 crop_gt <- function(file, whitespace) {
-  image_read(file) |> 
-    image_trim() |> 
-    image_border("white", glue('{whitespace}x{whitespace}')) |> 
+  image_read(file) %>% 
+    image_trim() %>% 
+    image_border("white", glue('{whitespace}x{whitespace}')) %>% 
     image_write(file)
 }
 

@@ -1,5 +1,6 @@
 ---
 title: "AP Weekly Grid"
+author: "Andrew Weatherman"
 output: rmarkdown::github_document
 date: "2023-12-26"
 ---
@@ -202,9 +203,9 @@ That's all of the code that we need for our table! Let's save an image of it. Ou
 
 ```{r}
 crop_gt <- function(file, whitespace) {
-  image_read(file) |> 
-    image_trim() |> 
-    image_border("white", glue('{whitespace}x{whitespace}')) |> 
+  image_read(file) %>% 
+    image_trim() %>% 
+    image_border("white", glue('{whitespace}x{whitespace}')) %>% 
     image_write(file)
 }
 
