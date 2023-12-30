@@ -1,0 +1,64 @@
+---
+title: "10 Minute Challenge: Team Logo Plot"
+author: "Andrew Weatherman"
+date: "2023-12-29"
+output: rmarkdown::github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, eval = FALSE)
+```
+
+```{r, eval=TRUE}
+library(cbbdata)
+library(tidyverse)
+library(ggtext)
+library(ggforce)
+library(hrbrthemes)
+library(nflplotR)
+library(here)
+```
+
+This is part of a new series called *10 Minute Viz*, where I give myself just ten minutes to create a visualization from scratch and record it. [You can watch the process on YouTube, where I also walk through each line of code at the end](https://youtu.be/JpggeWDFVaY).
+
+## Grab the data using `cbbdata`
+
+If you are new to `cbbdata`, learn how to install and create a FREE account at: https://cbbdata.aweatherman.com.
+
+```{r}
+data <- cbd_torvik_ratings(year = 2024) %>% 
+  left_join(cbd_teams() %>% select(logo, team = torvik_team), by = 'team')
+
+top_10 <- data %>% slice_min(adj_d, n = 10) %>% pull('team')
+```
+
+## Create the plot
+
+```{r}
+ggplot() +
+  geom_mean_lines(data = data, aes(x0 = adj_o, y0 = adj_d), color = 'black') +
+  geom_point(data = filter(data, !team %in% top_10), aes(adj_o, adj_d), alpha = 0.5) +
+  geom_from_path(data = filter(data, team %in% top_10), aes(adj_o, adj_d, path = logo),
+                 width = 0.035) +
+  geom_mark_hull(data = data, aes(adj_o, adj_d, filter = team == 'Houston',
+                                  label = "Houston allows just 0.838 points per possession"),
+                 label.fontsize = 11, label.family = 'Roboto Condensed') +
+  theme_ipsum_rc() +
+  theme(plot.title.position = 'plot',
+        plot.subtitle = element_text(vjust = 2.5, size = 11.5),
+        plot.caption.position = 'plot',
+        plot.caption = element_text(hjust = 0, lineheight = 1.2)) +
+  labs(title = "Houston's defense is unprecedentedly dominant",
+       subtitle = 'Adjusted efficienies for all Division 1 teams in 2023-24. Top 10 defensive teams are shown with logos. Average values are displayed.',
+       x = 'Adj. Offensive Efficiency',
+       y = 'Adj. Defensive Efficiency',
+       caption = 'Data by cbbdata\nViz. + Analysis by @andreweatherman')
+
+ggsave(plot = last_plot(), '10_min_team.png', dpi = 600, h = 7, w = 9, bg = 'white')
+```
+
+```{r, echo=FALSE, eval=TRUE}
+knitr::include_graphics(here('ten_minute', 'logo_plot', '10_min_team.png'))
+```
+
+

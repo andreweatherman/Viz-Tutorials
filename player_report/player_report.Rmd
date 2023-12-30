@@ -59,7 +59,7 @@ get_season_percentiles <- function(min_cutoff, games_cutoff, cols_to_plot = cols
                                  pos %in% c('Wing F', 'Wing G', 'Stretch 4') ~ 'wings',
                                  pos %in% c('C', 'PF/C') ~ 'bigs')) %>% 
     filter(min >= min_cutoff & g >= games_cutoff) %>% 
-    select(all_of(c('player', 'team', 'conf_group', 'pos_group', cols_to_plot$stat))) %>%
+    select(all_of(c('player', 'team', 'conf', 'conf_group', 'pos_group', cols_to_plot$stat))) %>%
     mutate(across(-c(player, team), percent_rank, .names = '{.col}_ptile'), .by = pos_group) %>% 
     mutate(across(-c(player, team), percent_rank, .names = '{.col}_conf_ptile'),
            .by = c(conf_group, pos_group)) %>% 
@@ -86,14 +86,21 @@ get_player <- function(player, team, season_percentiles = NULL, min_cutoff = NUL
                                                  cols_to_plot)
   }
   
+  reverse_cols <- c('tov', 'drtg')
+  
   player_data <- season_percentiles %>% 
+    # add raw ranks to season percentiles
+    mutate(across(cols_to_plot$stat, ~dense_rank(-.x), .names = '{.col}_rank'),
+       .by = conf) %>% 
+    mutate(across(reverse_cols, ~dense_rank(.x), .names = '{.col}_rank'),
+       .by = conf) %>% 
     filter(player == !!player & team == !!team) %>% 
-    pivot_longer(cols = -c(player, team, conf_group, pos_group), names_to = "variable", values_to = "value") %>% 
-    extract(variable, into = c("stat", "measure"), "^(.+?)(?:_(ptile|conf_ptile))?$") %>% 
+    pivot_longer(cols = -c(player, team, conf, conf_group, pos_group), names_to = "variable", values_to = "value") %>% 
+    extract(variable, into = c("stat", "measure"), "^(.+?)(?:_(ptile|conf_ptile|rank))?$") %>% 
     mutate(measure = ifelse(measure == '', 'raw', measure)) %>% 
     pivot_wider(id_cols = c(player, team, conf_group, pos_group, stat), names_from = measure, values_from = value) %>%
-    filter(!is.na(ptile) & !is.na(conf_ptile)) %>% 
     left_join(cols_to_plot, by = 'stat') %>% 
+    filter(!is.na(ptile) & !is.na(conf_ptile) & !is.na(plot_name)) %>% 
     mutate(
         natl_grade = case_when(
         ptile >= 0.95 ~ "A+",
@@ -162,7 +169,7 @@ plot_player_report <- function(player, team) {
     group_by(group) %>% 
     gt(id = 'player_report') %>% 
     gt_theme_538() %>% 
-    cols_hide(c(player, team, stat, conf_group, pos_group)) %>% 
+    cols_hide(c(player, team, stat, conf_group, pos_group, natl_grade)) %>% 
     cols_move_to_start(plot_name) %>% 
     cols_width(ptile ~ px(225), conf_ptile ~ px(225), plot_name ~ px(110)) %>% 
     cols_align(columns = c(everything(), -plot_name), 'center') %>% 
@@ -172,7 +179,8 @@ plot_player_report <- function(player, team) {
     fmt_percent(columns = raw, rows = to_scale_percent, decimals = 1) %>% 
     fmt_number(columns = raw, rows = to_scale_number, decimals = 1) %>% 
     gt_add_divider(raw, color = 'black', include_labels = FALSE) %>% 
-    cols_label(plot_name = 'Stat', raw = 'Value', ptile = 'National', conf_ptile = conf_group, natl_grade = 'Grade') %>% 
+    gt_add_divider(conf_ptile, color = 'black', include_labels = FALSE) %>% 
+    cols_label(plot_name = 'Stat', raw = 'Value', ptile = 'National', conf_ptile = conf_group, rank = 'Conf. Rank') %>% 
     # bold stat name and value
     tab_style(locations = cells_row_groups(), style = cell_text(weight = 'bold')) %>%
     # change group headings

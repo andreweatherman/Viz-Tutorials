@@ -17,6 +17,9 @@ This repository is a growing collection of college basketball visualizations and
 ### [Player Report Card](https://github.com/andreweatherman/Viz-Tutorials/tree/main/player_report/player_report.md)
 ![./player_report/Filipowski_report.png](https://github.com/andreweatherman/Viz-Tutorials/blob/main/player_report/Filipowski_report.png?raw=true)
 
+### [10-Minute Viz Challenge: Logo Plot](https://github.com/andreweatherman/Viz-Tutorials/tree/main/ten_minute/logo_plot/logo_plot.md)
+![./ten_minute/logo_plot/10_min_team.png](https://github.com/andreweatherman/Viz-Tutorials/blob/main/ten_minute/logo_plot/10_min_team.png?raw=true)
+
 ### [Coach Performance Relative to Expectations](https://github.com/andreweatherman/Viz-Tutorials/tree/main/over_under_coach_performance/over_under_coach_performance.md)
 ![./over_under_coach_performance/over_perform](https://github.com/andreweatherman/Viz-Tutorials/blob/main/over_under_coach_performance/over_perform.png?raw=true)
 
